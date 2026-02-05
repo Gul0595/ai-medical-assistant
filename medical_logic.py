@@ -4,6 +4,10 @@ from transformers import pipeline
 from functools import lru_cache
 import pandas as pd
 import numpy as np
+from transformers import pipeline, AutoTokenizer, AutoModelForSeq2SeqLM
+
+
+
 
 # ===============================
 # LOAD DATA
@@ -26,13 +30,15 @@ embeddings = embed_model.encode(medical_knowledge, show_progress_bar=False)
 # ===============================
 @lru_cache(maxsize=1)
 def load_generator():
-    return pipeline(
-        "text2text-generation",
-        model="google/flan-t5-base",
-        max_length=256
-    )
+    tokenizer = AutoTokenizer.from_pretrained("google/flan-t5-base")
+    model = AutoModelForSeq2SeqLM.from_pretrained("google/flan-t5-base")
 
-generator = load_generator()
+    generator = pipeline(
+        "text2text-generation",
+        model=model,
+        tokenizer=tokenizer
+    )
+    return generator
 
 # ===============================
 # RETRIEVAL (NO FAISS)
